@@ -45,6 +45,7 @@ var (
 	cursorPosition  = make(chan string, 10)
 	bulletDirection = make(chan int, 10)
 	nextLoves       = make(chan struct{}, 3)
+	increaseBullets = make(chan struct{}, 3)
 	decreaseBullets = make(chan struct{}, 3)
 	increaseLoves   = make(chan struct{}, 3)
 	exit            = make(chan struct{})
@@ -299,7 +300,6 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 // generateLoves randomly displays 3 loves on the view.
 func generateLoves(g *gocui.Gui, lv *gocui.View, maxX, interval int) {
 	defer wg.Done()
-	var x1, x2, x3 int
 	rand.Seed(time.Now().UnixNano())
 	displayLoves(g, lv, maxX)
 	for {
@@ -307,44 +307,46 @@ func generateLoves(g *gocui.Gui, lv *gocui.View, maxX, interval int) {
 		case <-exit:
 			return
 		case <-nextLoves:
-			g.Update(func(g *gocui.Gui) error {
-				x1 = rand.Intn(maxX + 1)
-				x2 = rand.Intn(maxX + 1)
-				x3 = rand.Intn(maxX + 1)
-				lv.Clear()
-
-				if err := lv.SetCursor(x1, 0); err == nil {
-					lv.EditWrite('♥')
-				}
-				if err := lv.SetCursor(x2, 0); err == nil {
-					//lv.EditWrite('♣')
-				}
-				if err := lv.SetCursor(x3, 0); err == nil {
-					//lv.EditWrite('♥')
-				}
-				return nil
-			})
+			displayLoves(g, lv, maxX)
 		}
 		time.Sleep(time.Duration(interval) * time.Millisecond)
 	}
 }
 
-// displayLoves displays loves icons for the first time.
+// displayLoves displays love icons to use as targets.
 func displayLoves(g *gocui.Gui, lv *gocui.View, maxX int) {
 	g.Update(func(g *gocui.Gui) error {
 		x1 := rand.Intn(maxX + 1)
 		x2 := rand.Intn(maxX + 1)
 		x3 := rand.Intn(maxX + 1)
+
+		min := x1
+		mid := x2
+		max := x3
+
+		if x2 < min {
+			min = x2
+		}
+		if x3 < min {
+			min = x3
+		}
+
+		if x1 > max {
+			max = x1
+		}
+		if x2 > max {
+			max = x2
+		}
+
+		if min < x1 && x1 < max {
+			mid = x1
+		} else if min < x3 && x3 < max {
+			mid = x3
+		}
+
+		l := strings.Repeat(" ", min) + GREEN_BOLD + "♥" + strings.Repeat(" ", mid-min-1) + RED_BOLD + "♦" + strings.Repeat(" ", max-mid-1) + GREEN_BOLD + "♥" + RESET
 		lv.Clear()
-		if err := lv.SetCursor(x1, 0); err == nil {
-			lv.EditWrite('♥')
-		}
-		if err := lv.SetCursor(x2, 0); err == nil {
-			//lv.EditWrite('♥')
-		}
-		if err := lv.SetCursor(x3, 0); err == nil {
-			//lv.EditWrite('♥')
-		}
+		fmt.Fprintf(lv, l)
 		return nil
 	})
 }
@@ -389,6 +391,13 @@ func updateStatsView(g *gocui.Gui, positionView, scoreView, bulletsView, timerVi
 			})
 		case <-decreaseBullets:
 			bullets--
+			g.Update(func(g *gocui.Gui) error {
+				bulletsView.Clear()
+				fmt.Fprint(bulletsView, center("Bullets : "+strconv.Itoa(bullets), pwidth, " "))
+				return nil
+			})
+		case <-increaseBullets:
+			bullets++
 			g.Update(func(g *gocui.Gui) error {
 				bulletsView.Clear()
 				fmt.Fprint(bulletsView, center("Bullets : "+strconv.Itoa(bullets), pwidth, " "))
@@ -441,10 +450,15 @@ func moveBullet(g *gocui.Gui, gameView *gocui.View, bottomY, dirX int) {
 		time.Sleep(25 * time.Millisecond)
 	}
 
-	if r, err := g.Rune(dirX+1, 0); err == nil && r == '♥' {
-		increaseLoves <- struct{}{}
-	} else {
-		decreaseBullets <- struct{}{}
+	r, err := g.Rune(dirX+1, 0)
+	if err == nil {
+		if r == '♥' {
+			increaseLoves <- struct{}{}
+		} else if r == '♦' {
+			increaseBullets <- struct{}{}
+		} else {
+			decreaseBullets <- struct{}{}
+		}
 	}
 	gameView.Clear()
 	nextLoves <- struct{}{}
