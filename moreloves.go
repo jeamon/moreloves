@@ -12,6 +12,8 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -53,6 +55,13 @@ var (
 )
 
 func main() {
+
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	// on windows only change terminal title.
+	if runtime.GOOS == "windows" {
+		exec.Command("cmd", "/c", "title [ MoreLoves By Jerome Amon ]").Run()
+	}
 
 	f, err := os.OpenFile("logs.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
