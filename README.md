@@ -1,9 +1,13 @@
 # MoreLoves
 
-As simple 2D game to play during time when you need to relax after a deep coding time. On your lovely terminal,
-use your keyboard keys to navigate and chase for more loves. Precision in the key for success at more loves.
+A simple 2D game to play during time when you need to relax after a deep coding time. On your lovely terminal,
+use your keyboard keys to navigate and chase for more loves. You can even chase for bullets to increase your budget. 
+Remember that only the accuracy of your cursor's position is the key to succeed at this lovely game.
 
 Enjoy :)
+
+
+![live example](https://github.com/jeamon/moreloves/blob/master/moreloves-demo-01.gif?raw=true)
 
 
 
@@ -26,7 +30,7 @@ Enjoy :)
 
 ## Demo
 
-Preview on my youtube channel. coming soon.
+Preview on my youtube channel. [click here](https://youtu.be/wA0N7utBnt4)
 
 
 ## Installation
@@ -53,6 +57,17 @@ $ chmod +x ./moreloves
 
 ## Getting started
 
+* Download the executable file and if you are on windows start the game program by double-clicking on it.
+
+* Or navigate to the executable folder and run from terminal (set the terminal background to black color). 
+
+```
+> moreloves.exe 
+```
+
+```
+$ ./moreloves
+```
 
 ## License
 
