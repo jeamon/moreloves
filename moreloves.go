@@ -355,7 +355,7 @@ func displayLoves(g *gocui.Gui, lv *gocui.View, maxX int) {
 
 		l := strings.Repeat(" ", min) + GREEN_BOLD + "♥" + strings.Repeat(" ", mid-min-1) + RED_BOLD + "♦" + strings.Repeat(" ", max-mid-1) + GREEN_BOLD + "♥" + RESET
 		lv.Clear()
-		fmt.Fprintf(lv, l)
+		fmt.Fprint(lv, l)
 		return nil
 	})
 }
