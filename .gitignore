@@ -1,0 +1,33 @@
+# Binaries folder
+bin/
+
+# Generate cpu profile file
+cpuprofile
+
+# Binaries for windows-based OS
+*.exe
+*.exe~
+
+# Binary for Linux-based OS
+moreloves
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# vscode IDE specific
+.vscode
+
+# log folder and files
+logs/
+*.log
+
+# Personal tasks list. 
+todo*.txt
+
+# images and presentation
+*.png
+*.PNG
+*.pptx
